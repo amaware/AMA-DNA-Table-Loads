@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AMA-DNA-Table-Loads.makejar" default="makejar" basedir=".">
+	<target name="makejar" description="Make JAR for AMA-DNA-Table-Loads">
+		<jar jarfile="..\..\jar\amadnatableloads.jar" 
+			includes="net\amaware\apps\amadnatableloads\*.class" 
+			basedir="bin"/>
+	</target>
+	
+</project>
