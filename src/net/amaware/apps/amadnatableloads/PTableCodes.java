@@ -15,8 +15,10 @@ import net.amaware.app.DataStoreReport;
 import net.amaware.autil.AComm;
 import net.amaware.autil.ACommDb;
 import net.amaware.autil.ADataColResult;
+import net.amaware.autil.ADatabaseAccess;
 import net.amaware.autil.AException;
 import net.amaware.autil.AExceptionSql;
+import net.amaware.autil.AFileExcelPOI;
 import net.amaware.autil.AProperties;
 
 //import net.amaware.serv.DataStore;
@@ -48,7 +50,22 @@ public class PTableCodes extends DataStoreReport {
     protected ADataColResult fUserModTs = mapDataCol("user_mod_ts");
     protected ADataColResult fTestIntNull = mapDataCol("test_int_null");
     protected ADataColResult fTestTsNull = mapDataCol("test_ts_null");
-//
+   //
+    //
+	//------------------db area-----------------------------
+    //
+    final static String propFileDbDnaLOGS     = "DbDnaLOGS.properties";
+    final static String propFileDbAmawareLOGS = "DbAmawareLOGS.properties"; 
+
+    final static String propFileDbDnaTABLE_CODES     = "DbDnaTABLE_CODES.properties";
+    final static String propFileDbAmawareTABLE_CODES = "DbAmawareTABLE_CODES.properties"; 
+    //
+    ADatabaseAccess thisADatabaseAccess;    
+    AFileExcelPOI aFileExcelPOI;
+    //    
+    
+    //        
+   // 
    TABLE_CODES qTABLE_CODES = null;
    //
    int numRowsIn=0;
@@ -111,7 +128,7 @@ public class PTableCodes extends DataStoreReport {
 
 		acomm.addPageMsgsLineOut(" ");
 		
-		qTABLE_CODES = new TABLE_CODES(acomm, "MainDbDnaTABLE_CODES.properties", args);
+		qTABLE_CODES = new TABLE_CODES(acomm, propFileDbDnaTABLE_CODES, args);
 
 		return retb;
 	}
@@ -333,6 +350,90 @@ public class PTableCodes extends DataStoreReport {
 
 	}
 
+	public boolean doDataRowAsExcel(ACommDb acomm) {
+		
+		String outExcelFileName = acomm.getOutFileDirectoryWithClassName()+AComm.getArgFileName();
+		
+		aFileExcelPOI = new AFileExcelPOI(acomm, outExcelFileName);
+		acomm.addPageMsgsLineOut(
+			    "PTableCodes:doDataRowAsExcel=>"
+			  + " |filename{" + outExcelFileName +"}"
+			 );		
+        //	
+		
+        thisADatabaseAccess = new ADatabaseAccess(acomm, propFileDbDnaTABLE_CODES);
+        thisADatabaseAccess.doQueryRsExcel(aFileExcelPOI
+                                              , "table_codes-DNA"
+                                              , "Select *"
+                                          +" from table_codes " 
+                            //+ " Where field_nme  = '" + ufieldname +"'" 
+                                          
+                            //+ " order by tab_name"
+                            + " order by tab_name, code_name, code_value"
+                            );     
+		
+		//
+        thisADatabaseAccess = new ADatabaseAccess(acomm, propFileDbDnaLOGS);
+        thisADatabaseAccess.doQueryRsExcel(aFileExcelPOI
+                                              , "logs-DNA"
+                                              , "Select *"
+                                          +" from logs " 
+                            //+ " Where field_nme  = '" + ufieldname +"'" 
+                                          
+                            + " order by entry_type, entry_subject, entry_topic"
+                            );     
+        thisADatabaseAccess = new ADatabaseAccess(acomm, propFileDbDnaLOGS);
+        thisADatabaseAccess.doQueryRsExcel(aFileExcelPOI
+                                              , "logs-DNA-ByCreateTS"
+                                              , "Select *"
+                                          +" from logs " 
+                            //+ " Where field_nme  = '" + ufieldname +"'" 
+                                          
+                            + " order by create_ts desc, entry_type, entry_subject, entry_topic"
+                            );             
+        //
+        //		
+        thisADatabaseAccess = new ADatabaseAccess(acomm, propFileDbAmawareTABLE_CODES);
+        thisADatabaseAccess.doQueryRsExcel(aFileExcelPOI
+                                              , "table_codes-Amaware"
+                                              , "Select *"
+                                          +" from table_codes " 
+                            //+ " Where field_nme  = '" + ufieldname +"'" 
+                                          
+                            //+ " order by tab_name"
+                            + " order by tab_name, code_name, code_value"
+                            );     
+		
+		//
+        thisADatabaseAccess = new ADatabaseAccess(acomm, propFileDbAmawareLOGS);
+        thisADatabaseAccess.doQueryRsExcel(aFileExcelPOI
+                                              , "logs-Amaware"
+                                              , "Select *"
+                                          +" from logs " 
+                            //+ " Where field_nme  = '" + ufieldname +"'" 
+                                          
+                            + " order by entry_type, entry_subject, entry_topic"
+                            );     
+        thisADatabaseAccess = new ADatabaseAccess(acomm, propFileDbAmawareLOGS);
+        thisADatabaseAccess.doQueryRsExcel(aFileExcelPOI
+                                              , "logs-Amaware-ByCreateTS"
+                                              , "Select *"
+                                          +" from logs " 
+                            //+ " Where field_nme  = '" + ufieldname +"'" 
+                                          
+                            + " order by create_ts desc, entry_type, entry_subject, entry_topic"
+                            );     
+        //
+   		try {
+			aFileExcelPOI.doOutputEnd();
+		} catch (IOException e) {
+			throw new AException(acomm, e, " Close of outFileExcel");
+		}        
+        //
+	    
+	       return true;
+	}
+	
 
 	//*SqlApp AutoGen @2017-03-18 07:57:51.0
 	 public void doDSRFieldsToTableTABLE_CODES(ACommDb acomm) {
